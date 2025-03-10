@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State private var username = ""
-    @State private var password = ""
+    @State private var username = "emilys"
+    @State private var password = "emilyspass"
     
     @ObservedObject private var loginViewModel: LoginViewModel
     private let authenticatedActionHandler = AuthenticatedActionHandler()
@@ -42,6 +42,7 @@ struct LoginView: View {
                     
                     if let token = loginViewModel.token {
                         Text("Token: \(token)")
+                            .padding()
                     }
                     
                     ForgotPasswordButton {

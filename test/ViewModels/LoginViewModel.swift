@@ -12,33 +12,28 @@ class LoginViewModel: ObservableObject {
     @Published var isAuthenticated: Bool?
     @Published var token: String?
 
+    private let authRepository: AuthRepositoryProtocol
+
+    init(authRepository: AuthRepositoryProtocol = AuthRepository()) {
+        self.authRepository = authRepository
+    }
+
     func login(username: String, password: String) {
-        let baseUrl = "https://2174b8a4-864e-4718-84e1-14817bcffb1f.mock.pstmn.io"
-        let endpoint = "/api/v1/auth/login"
-        let parameters = [
-            "username": username,
-            "password": password
-        ]
-        
-        AF.request(baseUrl + endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default)
-            .validate()
-            .responseDecodable(of: LoginResponse.self) { response in
-                switch response.result {
-                case .success(let loginResponse):
+        let request = LoginRequest(username: username, password: password)
+
+        authRepository.login(loginRequest: request) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let token):
                     self.isAuthenticated = true
-                    self.token = loginResponse.token
-                case .failure(let error):
+                    self.token = token
+                case .failure:
                     self.isAuthenticated = false
-                    print("Login request failed: \(error)")
                 }
             }
+        }
     }
 }
-
-struct LoginResponse: Decodable {
-    let token: String
-}
-
 
 class AuthenticatedActionHandler {
     func performActions() {
